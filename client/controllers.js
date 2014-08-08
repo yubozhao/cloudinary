@@ -52,7 +52,6 @@ Template.c_upload_stream.events({
         "Cloudinary Error: Helper Block needs a callback function to run");
       return
     }
-    //buildImagePreview(e, this, options)
 
     var files = e.currentTarget.files;
 
@@ -93,27 +92,28 @@ Template.c_clientside_upload.helpers({
     } else {
       return false;
     }
-
   }
 });
 
-Template.c_clientside_upload.events({
-  'change input[type=file]': function (evt, helper) {
-    console.log('event change ');
-  }
-});
+// For some reason the standard change binding does not work
+// Template.c_clientside_upload.events({
+//   'change input[type=file]': function (evt, helper) {
+//     console.log('event change ');
+//   }
+// });
 
 Template.c_clientside_upload.rendered = function () {
   var input = this.$('[type=file]');
 
-  // // Bind the change handler for the file inout
+  // Bind the change handler for the file input.
+  //For some reason the
   input.bind('change', function (evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       var files = evt.target.files;
 
       var file;
       for (var i = 0; file = files[i]; i++) {
-        console.log('render change ' + file.name);
+
         // // if the file is not an image, continue
         if (!file.type.match('image.*')) {
           continue;
@@ -121,8 +121,10 @@ Template.c_clientside_upload.rendered = function () {
 
         var reader = new FileReader();
 
+        // immediate function to capture the filename and avoid race condition
         reader.onload = (function (fileRead) {
           var fileName = fileRead.name; // get the name of file to use as annotation
+
           return function () {
             var pendingFile = {
               file_name: fileName,
@@ -130,7 +132,7 @@ Template.c_clientside_upload.rendered = function () {
               uploading: true,
               base64data: this.result
             };
-            console.log("insert with " + EJSON.stringify(pendingFile));
+            //console.log("insert with " + EJSON.stringify(pendingFile));
             var db_id = _cloudinary.insert(pendingFile, function (err) {
               if (err) {
                 App.logger.error(
@@ -139,20 +141,6 @@ Template.c_clientside_upload.rendered = function () {
               }
             });
           };
-
-          // return function (evt) {
-          //   var base64 = this.result;
-          //   _cloudinary.update({file_name: fileName}, {$set: {base64data: base64}}, function (err) {
-          //     if (err) {
-          //       App.logger.error(
-          //         "Error saving base64 data in _cloudinary",
-          //         err.reason);
-          //     }else{
-          //       console.log("saved basedata for " + fileName + ": " + base64);
-          //     }
-          //   });
-          //
-          // };
 
         }(file));
 
@@ -165,39 +153,38 @@ Template.c_clientside_upload.rendered = function () {
 
   var preset = getPreset(input);
   var cloudinaryUploadParams = getCloudinaryOptions(input);
+
   // Set up an unsigned upload
   input.unsigned_cloudinary_upload(preset, cloudinaryUploadParams).bind(
     'cloudinarydone', function (e, data) {
 
-      var fileName = data.files[0].name;
-      var publicId = data.result.public_id;
-      console.log('done with file ' + fileName + " publicId " + publicId);
+      var fileName = data.files[0].name; // get the name of the file
+      var result = data.result; // get the result from cloudinary
 
-      // var numFiles = data.files.length;
-      // for (var i = 0; i < numFiles; i++) {
-
-      var result = data.result;
-      console.log('searching for ' + fileName)
+      // get the record have a copy of base64data encoded image
       var record = _cloudinary.findOne({
         file_name: fileName
       });
 
       if (!record) {
+        App.logger.error("Error in cloudinarydone handler. Did not find " + fileName);
         console.log('did not find ' + fileName);
       }
 
+      // extend result to include some other properties
       _.extend(result, {
         file_name: fileName,
         total_uploaded: result.bytes,
         percent_uploaded: 100,
         uploading: false
       });
+
+      // don't overwrite the base64data
       if (record.base64data) {
         result.base64data = record.base64data
       }
 
-      // get the name of the image
-
+      // update the record with the result
       _cloudinary.update({
         file_name: fileName,
       }, result);
@@ -215,14 +202,13 @@ Template.c_clientside_upload.rendered = function () {
       //   effect: 'saturation:50'
       // };
 
-      //  augmentPreview(fileName, publicId);
-      // }
-
     }).bind('cloudinaryprogress', function (e, data) {
 
     var fileName = data.files[0].name;
-    console.log(fileName + " data loaded is : " + data.loaded +
-      " data size: " + data.total);
+    // console.log(fileName + " data loaded is : " + data.loaded +
+    //   " data size: " + data.total);
+
+    // update the record with progress information
     _cloudinary.update({
       file_name: fileName
     }, {
@@ -231,8 +217,6 @@ Template.c_clientside_upload.rendered = function () {
       }
     });
 
-    $('div.progress[data-progress="' + fileName + '"]').css('width',
-      Math.round((data.loaded * 100.0) / data.total) + '%');
   });
 };
 
@@ -267,88 +251,3 @@ var getCloudinaryOptions = function ($input) {
   // }
   return options;
 };
-
-// var augmentPreview = function (previewImageName, publicId, transforms) {
-//   // if there are no transforms then just annotate, otherwise replace
-//   if (typeof transforms === 'undefined') {
-//     annotatePreview(previewImageName, publicId);
-//   } else {
-//     replacePreview(previewImageName, publicId, transforms);
-//   }
-// };
-//
-// var replacePreview = function (previewImageName, publicId, transforms) {
-//   // create a cloudinaryImage
-//   var cloudinaryImage = $.cloudinary.image(publicId, transforms);
-//
-//   //annotate it with the public_id
-//   cloudinaryImage.attr("public_id", publicId);
-//
-//   // replace the preview with the cloudinary image
-//   $("img[data-name='" + previewImageName + "']").replaceWith(
-//     cloudinaryImage);
-// };
-//
-// var annotatePreview = function (previewImageName, publicId) {
-//   $("img[data-name='" + previewImageName + "']").attr("public_id", publicId);
-// };
-//
-// function buildImagePreview(evt, tmpl, options) {
-//   if (window.File && window.FileReader && window.FileList && window.Blob) {
-//     var files = evt.target.files;
-//     optons = options || {};
-//
-//     var file;
-//     for (var i = 0; file = files[i]; i++) {
-//       // if the file is not an image, continue
-//       if (!file.type.match('image.*')) {
-//         continue;
-//       }
-//
-//       var reader = new FileReader();
-//       reader.onload = (function (fileRead) {
-//         var fileName = fileRead.name; // get the name of file to use as annotation
-//         var pendingFile = {
-//           file_name: fileName,
-//           created_at: new Date(),
-//           uploading: true
-//         };
-//         options.db_id = _cloudinary.insert(pendingFile);
-//
-//         return function (evt, options) {
-//           var div = $('<div>');
-//           // create a progress div
-//           var progress = $('<div>');
-//           progress.addClass("progress");
-//           progress.attr('data-progress', fileName);
-//
-//           // append it to the container
-//           div.append(progress);
-//
-//           _cloudinary.update({
-//             file_name: fileName
-//           }, {
-//             $set: {
-//               base64data: evt.target.result
-//             }
-//           }, function (err) {
-//             if (err) {
-//               App.logger.error("Error saving base64 data in _cloudinary",
-//                 err.reason);
-//             }
-//           })
-//           // add the preview image
-//           div.append('<img style="width: 90px;" src="' + evt.target.result +
-//             '" data-name=' + fileName + ' />');
-//
-//           // add it to the thumbs
-//           $('.thumbnails').append(div);
-//         };
-//       }(file, options));
-//
-//       reader.readAsDataURL(file);
-//     }
-//   } else {
-//     alert('The File APIs are not fully supported in this browser.');
-//   }
-// };
