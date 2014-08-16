@@ -205,10 +205,9 @@ Template.c_clientside_upload.rendered = function () {
     }, {
       $set: {
         progress: data.progress()
-      },
-      {
-        multi: true
       }
+    }, {
+      multi: true
     });
 
   }).bind('cloudinaryfail', function (e, data) {
