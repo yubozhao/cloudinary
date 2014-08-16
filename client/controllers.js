@@ -85,16 +85,6 @@ Template.c_upload_stream.events({
 
 /******** Client side ***********/
 
-Template.c_clientside_upload.helpers({
-  preview: function () {
-    if (this.previewClass) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-});
-
 // For some reason the standard change binding does not work
 // Template.c_clientside_upload.events({
 //   'change input[type=file]': function (evt, helper) {
@@ -133,11 +123,11 @@ Template.c_clientside_upload.rendered = function () {
               base64data: this.result
             };
             //console.log("insert with " + EJSON.stringify(pendingFile));
-            var db_id = _cloudinary.insert(pendingFile, function (err) {
+            _cloudinary.insert(pendingFile, function (err, insertedId) {
               if (err) {
-                App.logger.error(
-                  "Error saving on reader.onload to _cloudinary",
-                  err.reason);
+                throw new Meteor.Error(417,
+                  "Error saving on reader.onload to _cloudinary", err.reason
+                );
               }
             });
           };
@@ -167,8 +157,9 @@ Template.c_clientside_upload.rendered = function () {
       });
 
       if (!record) {
-        App.logger.error("Error in cloudinarydone handler. Did not find " + fileName);
         console.log('did not find ' + fileName);
+        throw new Meteor.Error(417,
+          "Error in cloudinarydone handler. Did not find " + fileName);
       }
 
       // extend result to include some other properties
@@ -214,9 +205,15 @@ Template.c_clientside_upload.rendered = function () {
     }, {
       $set: {
         progress: data.progress()
+      },
+      {
+        multi: true
       }
     });
 
+  }).bind('cloudinaryfail', function (e, data) {
+    console.log("Error uploading file. " + e.message);
+    throw new Meteor.Error(417, "Cloudinary error uploading file. " + e.message);
   });
 };
 
