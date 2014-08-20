@@ -9,7 +9,7 @@ Npm.depends({
 
 Package.on_use(function (api){
 	//Need service-configuration to use Meteor.method
-	api.use(["underscore", "ejson","service-configuration","streams"], ["client", "server"]);
+	api.use(["underscore","jquery", "ejson","service-configuration","streams"], ["client", "server"]);
 	api.use(["ui","templating","spacebars"], "client");
 
 	//Image manipulation
@@ -25,7 +25,10 @@ Package.on_use(function (api){
 	api.add_files("client/cloudinary_styles.css","client");
 	api.add_files("server.js", "server");
 
+	api.add_files("both/uploaded.js", ["client", "server"]);
+
 	//Allow user access to Cloudinary server-side
 	api.export && api.export("Cloudinary","server");
 	api.export && api.export("_cloudinary","client");
+	api.export && api.export("uploaded",["client", "server"]);
 });

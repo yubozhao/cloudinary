@@ -95,6 +95,8 @@ Template.c_upload_stream.events({
 Template.c_clientside_upload.rendered = function () {
   var input = this.$('[type=file]');
 
+  var meta = getMeta(input);
+
   // Bind the change handler for the file input.
   //For some reason the
   input.bind('change', function (evt) {
@@ -120,8 +122,11 @@ Template.c_clientside_upload.rendered = function () {
               file_name: fileName,
               created_at: new Date(),
               uploading: true,
-              base64data: this.result
+              previewData: this.result
             };
+            if(!$.isEmptyObject(meta)){
+              pendingFile.meta = meta;
+            }
             //console.log("insert with " + EJSON.stringify(pendingFile));
             _cloudinary.insert(pendingFile, function (err, insertedId) {
               if (err) {
@@ -151,7 +156,7 @@ Template.c_clientside_upload.rendered = function () {
       var fileName = data.files[0].name; // get the name of the file
       var result = data.result; // get the result from cloudinary
 
-      // get the record have a copy of base64data encoded image
+      // get the record have a copy of previewData encoded image
       var record = _cloudinary.findOne({
         file_name: fileName
       });
@@ -162,17 +167,24 @@ Template.c_clientside_upload.rendered = function () {
           "Error in cloudinarydone handler. Did not find " + fileName);
       }
 
-      // extend result to include some other properties
-      _.extend(result, {
+      var existingData ={
         file_name: fileName,
         total_uploaded: result.bytes,
         percent_uploaded: 100,
         uploading: false
-      });
+      }
 
-      // don't overwrite the base64data
-      if (record.base64data) {
-        result.base64data = record.base64data
+      if(record.meta){
+        existingData.meta = record.meta;
+      }
+
+      // extend result to include some other properties
+      _.extend(result, existingData);
+
+      console.log('upload done' + data.result.public_id);
+      // don't overwrite the previewData
+      if (record.previewData) {
+        result.previewData = record.previewData
       }
 
       // update the record with the result
@@ -193,11 +205,11 @@ Template.c_clientside_upload.rendered = function () {
       //   effect: 'saturation:50'
       // };
 
-    }).bind('cloudinaryprogress', function (e, data) {
+    }).bind('fileuploadprogress', function (e, data) {
 
     var fileName = data.files[0].name;
-    // console.log(fileName + " data loaded is : " + data.loaded +
-    //   " data size: " + data.total);
+    console.log(fileName + " data loaded is : " + data.loaded +
+      " data size: " + data.total);
 
     // update the record with progress information
     _cloudinary.update({
@@ -213,8 +225,37 @@ Template.c_clientside_upload.rendered = function () {
   }).bind('cloudinaryfail', function (e, data) {
     console.log("Error uploading file. " + e.message);
     throw new Meteor.Error(417, "Cloudinary error uploading file. " + e.message);
-  });
+  }).bind('cloudinarystart', function (e) {
+    console.log('starting')
+  }).bind('cloudinarystop', function (e, data) {
+    console.log('stopping');
+  })
 };
+
+Template.c_clientside_upload.destroyed = function () {
+  var input = this.$('[type=file]');
+  input.unbind("cloudinarystop");
+  input.unbind('cloudinarystart');
+  input.unbind('cloudinaryprogress');
+  input.unbind('cloudinarydone');
+}
+
+/* Expects a string "role:collector,userId:1234,...", return and object {role:'collector',userId:'1234'}
+ */
+var getMeta = function ($input) {
+  var meta = {};
+  var metaField = $input.data('meta');
+
+  if (metaField && metaField.length > 0) {
+    var keyValues = metaField.split(',');
+    _.map(keyValues, function (keyValue) {
+      var pair = keyValue.split(":");
+      meta[pair[0]] = pair[1];
+    });
+  }
+
+  return meta;
+}
 
 var getPreset = function ($input) {
   var preset = $input.data("preset");
