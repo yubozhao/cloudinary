@@ -124,7 +124,7 @@ Template.c_clientside_upload.rendered = function () {
               uploading: true,
               previewData: this.result
             };
-            if(!$.isEmptyObject(meta)){
+            if (!$.isEmptyObject(meta)) {
               pendingFile.meta = meta;
             }
             //console.log("insert with " + EJSON.stringify(pendingFile));
@@ -167,21 +167,24 @@ Template.c_clientside_upload.rendered = function () {
           "Error in cloudinarydone handler. Did not find " + fileName);
       }
 
-      var existingData ={
+      var existingData = {
         file_name: fileName,
         total_uploaded: result.bytes,
         percent_uploaded: 100,
         uploading: false
       }
 
-      if(record.meta){
+      if (record.meta) {
         existingData.meta = record.meta;
       }
 
       // extend result to include some other properties
       _.extend(result, existingData);
 
-      console.log('upload done' + data.result.public_id);
+      if ($.cloudinary.config.debug) {
+        console.log('upload done' + data.result.public_id);
+      }
+
       // don't overwrite the previewData
       if (record.previewData) {
         result.previewData = record.previewData
@@ -208,8 +211,10 @@ Template.c_clientside_upload.rendered = function () {
     }).bind('fileuploadprogress', function (e, data) {
 
     var fileName = data.files[0].name;
-    console.log(fileName + " data loaded is : " + data.loaded +
-      " data size: " + data.total);
+    if ($.cloudinary.config.debug) {
+      console.log(fileName + " data loaded is : " + data.loaded +
+        " data size: " + data.total);
+    }
 
     // update the record with progress information
     _cloudinary.update({
@@ -223,13 +228,19 @@ Template.c_clientside_upload.rendered = function () {
     });
 
   }).bind('cloudinaryfail', function (e, data) {
-    console.log("Error uploading file. " + e.message);
+    if ($.cloudinary.config.debug) {
+      console.log("Error uploading file. " + e.message);
+    }
     throw new Meteor.Error(417, "Cloudinary error uploading file. " + e.message);
   }).bind('cloudinarystart', function (e) {
-    console.log('starting')
+    if ($.cloudinary.config.debug) {
+      console.log('starting')
+    }
   }).bind('cloudinarystop', function (e, data) {
-    console.log('stopping');
-  })
+    if ($.cloudinary.config.debug) {
+      console.log('stopping');
+    }
+  });
 };
 
 Template.c_clientside_upload.destroyed = function () {

@@ -35,13 +35,13 @@ uploaded.add = function (imageObj, callback) {
   if (imageObj.status) {
     check(imageObj.status, Number);
   } else {
-    imageObj.status = status.uploading;
+    imageObj.status = this.status.uploading;
   }
 
   if (imageObj.publicId) {
     check(imageObj.publicId, String);
 
-    if (uploaded.find({
+    if (this.find({
       publicId: imageObj.publicId
     }).count() > 0) {
       return; // return if the image already exists
@@ -51,12 +51,12 @@ uploaded.add = function (imageObj, callback) {
   imageObj.createdAt = new Date();
   imageObj.ownerId = uId;
 
-  uploaded.insert(imageObj, callback);
+  this.insert(imageObj, callback);
 };
 
 // when the image is linked it is referenced by another object so the pending reference can be safely removed
 uploaded.markLinked = function (id, callback) {
-  uploaded.remove({
+  this.remove({
     _id: id
   }, callback);
 };
@@ -67,10 +67,21 @@ uploaded.markDeleted = function (id, callback) {
       _id: id
     }, {
       $set: {
-        status: status.deleted
+        status: this.status.deleted
       }
     },
     callback);
+};
+/**
+ * Marks a record as determined by their public_id field as being deleted.  They are subsequently deleted from cloudinary.
+ * @param {Array}   publicIds An array of public_id
+ * @param {Function} callback A callback with error and result
+ */
+uploaded.markDeletedByPublicId = function (publicId, callback) {
+  if (_.isString(publicId)) {
+    var upload = this.findOne({ publicId: publicId })
+    this.markDeleted(upload._id, callback);
+  }
 };
 
 // /**
@@ -104,26 +115,6 @@ uploaded.markDeleted = function (id, callback) {
 // };
 //
 //
-// /**
-//  * Marks all records as determined by their public_id field as being deleted.  They are subsequently deleted from cloudinary.
-//  * @param {Array}   publicIds An array of public_id
-//  * @param {Function} callback A callback with error and result
-//  */
-// uploaded.deleteByPublicIds = function (publicIds, callback) {
-//   if (_.isArray(publicIds)) {
-//     var imageIds = uploaded.find({
-//       publicId: {
-//         $in: publicIds
-//       }
-//     }).fetch()
-//
-//     // get the ids
-//     imageIds = _.pluck(imageIds, "_id");
-//     // remove them all
-//     this.deleteAll(imageIds);
-//   }
-// };
-
 
 uploaded.roles = {
   collectible: 1,
@@ -147,10 +138,12 @@ if (Meteor.isServer) {
     hookHandles.push(
       uploaded.after.update(function (userId, doc, fieldNames,
         modifier, options) {
+
         // check if the pending image was marked as deleted. If so delete from cloudinary
         if (fieldNames.indexOf('status') > -1 && doc.status ===
           uploaded.status.deleted) {
 
+          console.log('calling cloudinary_delete with ' + doc.publicId);
           Meteor.call("cloudinary_delete", doc.publicId, function (err,
             result) {
             // if there was an error log it.
@@ -159,7 +152,7 @@ if (Meteor.isServer) {
               throw new Meteor.Error(419,
                 "Error deleting cloudinary image. " +
                 err.reason);
-              //	return;
+              	return;
             }
             // otherwise remove the image
             uploaded.remove(doc._id);
