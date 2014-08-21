@@ -61,6 +61,21 @@ uploaded.markLinked = function (id, callback) {
   }, callback);
 };
 
+uploaded.markLinkedByPublicId = function (publicId, callback) {
+  if (_.isString(publicId)) {
+    var upload = this.findOne({
+      publicId: publicId
+    });
+    if (upload) {
+      this.markLinked(upload._id, callback);
+    } else {
+      throw new Meteor.Error(419,
+        "Error in uploaded.markLinkedByPublicId with publicId " + publicId);
+    }
+
+  }
+};
+
 // marks the image as delete. Deleted on server side and in cloudinary.
 uploaded.markDeleted = function (id, callback) {
   this.update({
@@ -79,8 +94,17 @@ uploaded.markDeleted = function (id, callback) {
  */
 uploaded.markDeletedByPublicId = function (publicId, callback) {
   if (_.isString(publicId)) {
-    var upload = this.findOne({ publicId: publicId })
-    this.markDeleted(upload._id, callback);
+    var upload = this.findOne({
+      publicId: publicId
+    });
+
+    if (upload) {
+      this.markDeleted(upload._id, callback);
+    } else {
+      throw new Meteor.Error(419,
+        "Error in uploaded.markDeletedByPublicId with publicId " + publicId);
+    }
+
   }
 };
 
@@ -152,7 +176,7 @@ if (Meteor.isServer) {
               throw new Meteor.Error(419,
                 "Error deleting cloudinary image. " +
                 err.reason);
-              	return;
+              return;
             }
             // otherwise remove the image
             uploaded.remove(doc._id);
