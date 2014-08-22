@@ -181,7 +181,7 @@ Template.c_clientside_upload.rendered = function () {
       // extend result to include some other properties
       _.extend(result, existingData);
 
-      if ($.cloudinary.config.debug) {
+      if ($.cloudinary.config().debug) {
         console.log('upload done' + data.result.public_id);
       }
 
@@ -211,7 +211,7 @@ Template.c_clientside_upload.rendered = function () {
     }).bind('fileuploadprogress', function (e, data) {
 
     var fileName = data.files[0].name;
-    if ($.cloudinary.config.debug) {
+    if ($.cloudinary.config().debug) {
       console.log(fileName + " data loaded is : " + data.loaded +
         " data size: " + data.total);
     }
@@ -228,16 +228,16 @@ Template.c_clientside_upload.rendered = function () {
     });
 
   }).bind('cloudinaryfail', function (e, data) {
-    if ($.cloudinary.config.debug) {
+    if ($.cloudinary.config().debug) {
       console.log("Error uploading file. " + e.message);
     }
     throw new Meteor.Error(417, "Cloudinary error uploading file. " + e.message);
   }).bind('cloudinarystart', function (e) {
-    if ($.cloudinary.config.debug) {
+    if ($.cloudinary.config().debug) {
       console.log('starting')
     }
   }).bind('cloudinarystop', function (e, data) {
-    if ($.cloudinary.config.debug) {
+    if ($.cloudinary.config().debug) {
       console.log('stopping');
     }
   });
@@ -279,14 +279,19 @@ var getCloudinaryOptions = function ($input) {
   var options = {};
 
   var tags = $input.data("tags");
+
   if (tags) {
     options.tags = tags;
   }
 
-  // var context = $input.data("context");
-  // if(context){
-  // 	options.context = context;
-  // }
+  var context = {}; // $input.data("context")|| {};
+  // if debugging add an extra tag
+  if ($.cloudinary.config().debug) {
+    context = {alt: 'debug'};
+  }
+  if (context) {
+    options.context = context;
+  }
 
   var publicId = $input.data('publicId');
   if (publicId) {
