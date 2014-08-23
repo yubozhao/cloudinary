@@ -171,11 +171,17 @@ Template.c_clientside_upload.rendered = function () {
         file_name: fileName,
         total_uploaded: result.bytes,
         percent_uploaded: 100,
-        uploading: false
+        uploading: false,
+        publicId: result.public_id
       }
 
+      // don't overwrite the meta data
       if (record.meta) {
         existingData.meta = record.meta;
+      }
+       // don't overwrite the previewData
+      if (record.previewData) {
+        existingData.previewData = record.previewData
       }
 
       // extend result to include some other properties
@@ -185,11 +191,8 @@ Template.c_clientside_upload.rendered = function () {
         console.log('upload done' + data.result.public_id);
       }
 
-      // don't overwrite the previewData
-      if (record.previewData) {
-        result.previewData = record.previewData
-      }
-
+      delete data.result.public_id;
+      
       // update the record with the result
       _cloudinary.update({
         file_name: fileName,
