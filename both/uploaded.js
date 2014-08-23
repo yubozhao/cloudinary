@@ -69,8 +69,10 @@ uploaded.markLinkedByPublicId = function (publicId, callback) {
     if (upload) {
       this.markLinked(upload._id, callback);
     } else {
-      throw new Meteor.Error(419,
-        "Error in uploaded.markLinkedByPublicId with publicId " + publicId);
+      if(callback){
+        callback("Could not find "+ publicId + " in uploaded");  
+      }
+      
     }
 
   }
