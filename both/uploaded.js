@@ -69,10 +69,10 @@ uploaded.markLinkedByPublicId = function (publicId, callback) {
     if (upload) {
       this.markLinked(upload._id, callback);
     } else {
-      if(callback){
-        callback("Could not find "+ publicId + " in uploaded");  
+      if (callback) {
+        callback("Could not find " + publicId + " in uploaded");
       }
-      
+
     }
 
   }
@@ -103,8 +103,9 @@ uploaded.markDeletedByPublicId = function (publicId, callback) {
     if (upload) {
       this.markDeleted(upload._id, callback);
     } else {
-      throw new Meteor.Error(419,
-        "Error in uploaded.markDeletedByPublicId with publicId " + publicId);
+      if (callback) {
+        callback("Could not find " + publicId + " in uploaded");
+      }
     }
 
   }

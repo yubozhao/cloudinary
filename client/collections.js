@@ -16,12 +16,12 @@ var initCollectionHooks = function () {
       modifier,
       options) {
 
-      if (fieldNames.indexOf("public_id") > -1) {
-        console.log("Adding uploaded " + doc.public_id);
+      if (fieldNames.indexOf("publicId") > -1) {
+        console.log("Adding uploaded " + doc.publicId);
         // create a new pending image
         var newUpload = {
           status: uploaded.status.active,
-          publicId: doc.public_id,
+          publicId: doc.publicId,
           name: doc.file_name
         };
 
