@@ -61,22 +61,6 @@ uploaded.markLinked = function (id, callback) {
   }, callback);
 };
 
-uploaded.markLinkedByPublicId = function (publicId, callback) {
-  if (_.isString(publicId)) {
-    var upload = this.findOne({
-      publicId: publicId
-    });
-    if (upload) {
-      this.markLinked(upload._id, callback);
-    } else {
-      if (callback) {
-        callback("Could not find " + publicId + " in uploaded");
-      }
-
-    }
-
-  }
-};
 
 // marks the image as delete. Deleted on server side and in cloudinary.
 uploaded.markDeleted = function (id, callback) {
@@ -89,59 +73,7 @@ uploaded.markDeleted = function (id, callback) {
     },
     callback);
 };
-/**
- * Marks a record as determined by their public_id field as being deleted.  They are subsequently deleted from cloudinary.
- * @param {Array}   publicIds An array of public_id
- * @param {Function} callback A callback with error and result
- */
-uploaded.markDeletedByPublicId = function (publicId, callback) {
-  if (_.isString(publicId)) {
-    var upload = this.findOne({
-      publicId: publicId
-    });
 
-    if (upload) {
-      this.markDeleted(upload._id, callback);
-    } else {
-      if (callback) {
-        callback("Could not find " + publicId + " in uploaded");
-      }
-    }
-
-  }
-};
-
-// /**
-//  * Marks all records as deleted. They are subsequently deleted from cloudinary
-//  * @param {Array}   ids      An array of _id
-//  * @param {Function} callback A callback with error and result
-//  */
-// uploaded.deleteAll = function (ids, callback) {
-//   if (_.isArray(ids)) {
-//     for (var i = 0, len = ids.length; i < len; i++) {
-//       uploaded.delete({
-//         _id: ids[i]
-//       }, callback);
-//     }
-//   }
-// };
-//
-// /**
-//  * Remove by the specified predicate
-//  * @param {Object} predicate A predicate object
-//  */
-// uploaded.deleteByPredicate = function (predicate, callback) {
-//   // get all with role
-//   var imageIds = uploaded.find(predicate, callback).fetch();
-//
-//   // get ids
-//   imageIds = _.pluck(imageIds, "_id");
-//
-//   // remove all
-//   this.deleteAll(imageIds);
-// };
-//
-//
 
 uploaded.roles = {
   collectible: 1,
@@ -157,6 +89,44 @@ uploaded.status = {
 
 /****** Begin Server only code  **************/
 if (Meteor.isServer) {
+
+  Meteor.methods({
+    markUploadDeletedByPublicId : function(publicId, callback){
+      if (_.isString(publicId)) {
+        var upload = uploaded.findOne({
+          publicId: publicId
+        });
+
+        if (upload) {
+          uploaded.markDeleted(upload._id, callback);
+        } else {
+          if (callback) {
+            callback("Could not find " + publicId + " in uploaded");
+          }
+        }
+
+      }
+    },
+    markUploadLinkedByPublicId : function(publicId, callback){
+      if (_.isString(publicId)) {
+        var upload = uploaded.findOne({
+          publicId: publicId
+        });
+        if (upload) {
+          uploaded.markLinked(upload._id, callback);
+        } else {
+          if (callback) {
+            callback("Could not find " + publicId + " in uploaded");
+          }
+
+        }
+
+      }
+    }
+  });
+
+
+
   var hookHandles = [];
 
   var initCollectionHooks = function () {
