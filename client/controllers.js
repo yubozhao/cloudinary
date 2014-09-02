@@ -1,79 +1,55 @@
 Template.c_upload.events({
-  'change input[type=file]': function (e, helper) {
-    var options = {
-      context: this
-    };
+	'change input[type=file]': function (e,helper) {
+		var options = {context:this};
 
-    if (helper.data && _.has(helper.data, "callback")) {
-      options.callback = helper.data.callback;
-    } else {
-      console.log(
-        "Cloudinary Error: Helper Block needs a callback function to run");
-      return
-    }
+		if(helper.data && _.has(helper.data,"callback")){
+			options.callback = helper.data.callback;
+		}
 
-    var files = e.currentTarget.files;
+		var files = e.currentTarget.files;
 
-    _.each(files, function (file) {
-      var reader = new FileReader;
+		_.each(files,function(file){
+			var reader = new FileReader;
 
-      reader.onload = (function (fileRead) {
-        var fileName = fileRead.name;
-        var pendingFile = {
-          file_name: fileName,
-          created_at: new Date()
-        };
-        options.db_id = _cloudinary.insert(pendingFile);
-        Meteor.call("cloudinary_upload", reader.result, options, function (
-          err, res) {
-          if (err) {
-            _cloudinary.remove(options.db_id);
-            console.log(err);
-          }
-        });
-      }(file));
+			reader.onload = function () {
+				options.db_id = _cloudinary.insert({});
+				Meteor.call("cloudinary_upload",reader.result,options,function(err,res){
+					if(err){
+						_cloudinary.remove(options.db_id);
+						console.log(err);
+					}
+				});
+			};
 
-      reader.readAsDataURL(file);
-    });
-  }
+			reader.readAsDataURL(file);
+		});
+	}
 });
 
 Template.c_upload_stream.events({
-  'change input[type=file]': function (e, helper) {
+	'change input[type=file]': function (e,helper) {
 
-    var options = {
-      context: this
-    };
+		var options = {context:this};
 
-    if (helper.data && _.has(helper.data, "callback")) {
-      options.callback = helper.data.callback;
-    } else {
-      console.log(
-        "Cloudinary Error: Helper Block needs a callback function to run");
-      return
-    }
+		if(helper.data && _.has(helper.data,"callback")){
+			options.callback = helper.data.callback;
+		}
 
-    var files = e.currentTarget.files;
+		var files = e.currentTarget.files;
 
-    _.each(files, function (file) {
-      var reader = new FileReader();
-      var fileName = file.name;
+		_.each(files,function(file){
+			var reader = new FileReader;
 
-      reader.onload = function (e) {
-        var file_data = new Uint8Array(reader.result);
-        var pendingFile = {
-          file_name: fileName,
-          created_at: new Date()
-        };
-        options.db_id = _cloudinary.insert(pendingFile);
-        Meteor.call("cloudinary_upload_stream", file_data, options,
-          function (err, res) {
-            if (err) {
-              _cloudinary.remove(options.db_id);
-              console.log(err);
-            }
-          });
-      };
+			reader.onload = function () {
+				var file_data = new Uint8Array(reader.result);
+				options.db_id = _cloudinary.insert({});
+				Meteor.call("cloudinary_upload_stream",file_data,options,function(err,res){
+					if(err){
+						_cloudinary.remove(options.db_id);
+						console.log(err);
+					}
+				});
+			};
 
 
       reader.readAsArrayBuffer(file);
@@ -201,15 +177,6 @@ Template.c_clientside_upload.rendered = function () {
       if (record.callback) {
         Meteor.call(record.callback, result);
       }
-
-      // var imageTransforms = {
-      //   format: 'jpg',
-      //   width: 150,
-      //   height: 100,
-      //   crop: 'thumb',
-      //   gravity: 'face',
-      //   effect: 'saturation:50'
-      // };
 
     }).bind('fileuploadprogress', function (e, data) {
 
