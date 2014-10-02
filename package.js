@@ -1,41 +1,45 @@
 Package.describe({
-	name:"lepozepo:cloudinary",
-	summary: "Upload files to Cloudinary",
-	version:"3.0.0",
-	git:"https://github.com/Lepozepo/cloudinary"
+  name: "cloudinary",
+  summary: "Upload files to Cloudinary. Extend lepozepo's package with client side upload",
+  version: "0.9.0",
+  git: "https://github.com/cramhead/cloudinary"
 });
 
 Npm.depends({
-	cloudinary: "1.0.8",
-	"stream-buffers":"0.2.5"
+  cloudinary: "1.0.8",
+  "stream-buffers": "0.2.5"
 });
 
-Package.on_use(function (api){
-	//Need service-configuration to use Meteor.method
-	api.use(["underscore@1.0.0", "ejson@1.0.0","service-configuration@1.0.0","lepozepo:streams@0.2.0"], ["client", "server"]);
+Package.onUse(function (api) {
+  //api.versionsFrom('METEOR@0.9.2');
+  api.use('mongo', ['client', 'server']);
+  //Need service-configuration to use Meteor.method
+  
+  api.use(["underscore@1.0.0", "ejson@1.0.0", "service-configuration@1.0.0", "lepozepo:streams@0.2.0"], ["client", "server"]);
 
-	api.use(["matb33:collection-hooks@0.7.3"], ["client", "server"],{weak:true});
+  api.use(["matb33:collection-hooks@0.7.3"], ["client", "server"], {weak: true});
 
-	api.use(["ui@1.0.0","templating@1.0.0","spacebars@1.0.0"], "client");
+  api.use(["ui@1.0.0", "templating@1.0.0", "spacebars@1.0.0"], "client");
 
-	//Image manipulation
-	api.add_files("lib/jquery.iframe-transport.js","client");
-	api.add_files("lib/jquery.ui.widget.js","client");
-	api.add_files("lib/jquery.fileupload.js","client");
-	api.add_files("lib/jquery.cloudinary.js","client");
+  //Image manipulation
+  api.addFiles("lib/jquery.iframe-transport.js", "client");
+  api.addFiles("lib/jquery.ui.widget.js", "client");
+  api.addFiles("lib/jquery.fileupload.js", "client");
+  api.addFiles("lib/jquery.cloudinary.js", "client");
 
-	api.add_files("client/blocks.html", "client");
-	api.add_files("client/helpers.js", "client");
-	api.add_files("client/controllers.js","client");
-	api.add_files("client/collections.js", "client");
-	api.add_files("client/functions.js", "client");
-	api.add_files("server.js", "server");
+  api.addFiles("client/blocks.html", "client");
+  api.addFiles("client/helpers.js", "client");
+  api.addFiles("client/controllers.js", "client");
+  api.addFiles("client/collections.js", "client");
+  api.addFiles("client/functions.js", "client");
+  api.addFiles("server.js", "server");
 
-	api.add_files("both/uploaded.js", ["client", "server"]);
+  api.addFiles("both/uploaded.js", ["client", "server"]);
 
-	//Allow user access to Cloudinary server-side
-	api.export && api.export("Cloudinary","server");
-	api.export && api.export("_cloudinary","client");
-	api.export && api.export("C","client");
-});	api.export && api.export("uploaded",["client", "server"]);
+  //Allow user access to Cloudinary server-side
+  api.export("Cloudinary", 'server');
+  api.export("_cloudinary", "client");
+  api.export("C", "client");
+  api.export("uploaded", ["client", "server"]);
 });
+

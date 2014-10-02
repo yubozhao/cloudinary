@@ -1,4 +1,4 @@
-uploaded = new Meteor.Collection('uploaded');
+uploaded = new Mongo.Collection('uploaded');
 
 uploaded.allow({
   insert: function (userId, doc) {
@@ -166,7 +166,7 @@ if (Meteor.isServer) {
 
       var hookHandle = hookHandles.pop();
       hookHandle.remove();
-    };
+    }
   };
 
   // start with hooks enabled

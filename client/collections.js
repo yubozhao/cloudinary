@@ -1,4 +1,4 @@
-_cloudinary = new Meteor.Collection(null);
+_cloudinary = new Mongo.Collection(null);
 _cloudinary_stream = new Meteor.Stream("c_stream");
 
 _cloudinary_stream.on("upload", function (data, options) {
