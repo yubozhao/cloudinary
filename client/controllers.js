@@ -1,55 +1,55 @@
 Template.c_upload.events({
-	'change input[type=file]': function (e,helper) {
-		var options = {context:this};
+  'change input[type=file]': function (e, helper) {
+    var options = {context: this};
 
-		if(helper.data && _.has(helper.data,"callback")){
-			options.callback = helper.data.callback;
-		}
+    if (helper.data && _.has(helper.data, "callback")) {
+      options.callback = helper.data.callback;
+    }
 
-		var files = e.currentTarget.files;
+    var files = e.currentTarget.files;
 
-		_.each(files,function(file){
-			var reader = new FileReader;
+    _.each(files, function (file) {
+      var reader = new FileReader;
 
-			reader.onload = function () {
-				options.db_id = _cloudinary.insert({});
-				Meteor.call("cloudinary_upload",reader.result,options,function(err,res){
-					if(err){
-						_cloudinary.remove(options.db_id);
-						console.log(err);
-					}
-				});
-			};
+      reader.onload = function () {
+        options.db_id = _cloudinary.insert({});
+        Meteor.call("cloudinary_upload", reader.result, options, function (err, res) {
+          if (err) {
+            _cloudinary.remove(options.db_id);
+            console.log(err);
+          }
+        });
+      };
 
-			reader.readAsDataURL(file);
-		});
-	}
+      reader.readAsDataURL(file);
+    });
+  }
 });
 
 Template.c_upload_stream.events({
-	'change input[type=file]': function (e,helper) {
+  'change input[type=file]': function (e, helper) {
 
-		var options = {context:this};
+    var options = {context: this};
 
-		if(helper.data && _.has(helper.data,"callback")){
-			options.callback = helper.data.callback;
-		}
+    if (helper.data && _.has(helper.data, "callback")) {
+      options.callback = helper.data.callback;
+    }
 
-		var files = e.currentTarget.files;
+    var files = e.currentTarget.files;
 
-		_.each(files,function(file){
-			var reader = new FileReader;
+    _.each(files, function (file) {
+      var reader = new FileReader;
 
-			reader.onload = function () {
-				var file_data = new Uint8Array(reader.result);
-				options.db_id = _cloudinary.insert({});
-				Meteor.call("cloudinary_upload_stream",file_data,options,function(err,res){
-					if(err){
-						_cloudinary.remove(options.db_id);
-						console.log(err);
-					}
-				});
-			};
+      reader.onload = function () {
+        var file_data = new Uint8Array(reader.result);
+        options.db_id = _cloudinary.insert({});
+        Meteor.call("cloudinary_upload_stream", file_data, options, function (err, res) {
+          if (err) {
+            _cloudinary.remove(options.db_id);
+            console.log(err);
+          }
+        });
+      };
 
 
       reader.readAsArrayBuffer(file);
@@ -74,7 +74,6 @@ Template.c_clientside_upload.rendered = function () {
   var meta = getMeta(input);
 
   // Bind the change handler for the file input.
-  //For some reason the
   input.bind('change', function (evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
       var files = evt.target.files;
@@ -155,7 +154,7 @@ Template.c_clientside_upload.rendered = function () {
       if (record.meta) {
         existingData.meta = record.meta;
       }
-       // don't overwrite the previewData
+      // don't overwrite the previewData
       if (record.previewData) {
         existingData.previewData = record.previewData
       }
@@ -168,7 +167,7 @@ Template.c_clientside_upload.rendered = function () {
       }
 
       delete data.result.public_id;
-      
+
       // update the record with the result
       _cloudinary.update({
         file_name: fileName,
@@ -180,37 +179,37 @@ Template.c_clientside_upload.rendered = function () {
 
     }).bind('fileuploadprogress', function (e, data) {
 
-    var fileName = data.files[0].name;
-    if ($.cloudinary.config().debug) {
-      console.log(fileName + " data loaded is : " + data.loaded +
+      var fileName = data.files[0].name;
+      if ($.cloudinary.config().debug) {
+        console.log(fileName + " data loaded is : " + data.loaded +
         " data size: " + data.total);
-    }
-
-    // update the record with progress information
-    _cloudinary.update({
-      file_name: fileName
-    }, {
-      $set: {
-        progress: data.progress()
       }
-    }, {
-      multi: true
-    });
 
-  }).bind('cloudinaryfail', function (e, data) {
-    if ($.cloudinary.config().debug) {
-      console.log("Error uploading file. " + e.message);
-    }
-    throw new Meteor.Error(417, "Cloudinary error uploading file. " + e.message);
-  }).bind('cloudinarystart', function (e) {
-    if ($.cloudinary.config().debug) {
-      console.log('starting')
-    }
-  }).bind('cloudinarystop', function (e, data) {
-    if ($.cloudinary.config().debug) {
-      console.log('stopping');
-    }
-  });
+      // update the record with progress information
+      _cloudinary.update({
+        file_name: fileName
+      }, {
+        $set: {
+          progress: data.progress()
+        }
+      }, {
+        multi: true
+      });
+
+    }).bind('cloudinaryfail', function (e, data) {
+      if ($.cloudinary.config().debug) {
+        console.log("Error uploading file. " + e.message);
+      }
+      throw new Meteor.Error(417, "Cloudinary error uploading file. " + e.message);
+    }).bind('cloudinarystart', function (e) {
+      if ($.cloudinary.config().debug) {
+        console.log('starting')
+      }
+    }).bind('cloudinarystop', function (e, data) {
+      if ($.cloudinary.config().debug) {
+        console.log('stopping');
+      }
+    });
 };
 
 Template.c_clientside_upload.destroyed = function () {
@@ -219,7 +218,7 @@ Template.c_clientside_upload.destroyed = function () {
   input.unbind('cloudinarystart');
   input.unbind('cloudinaryprogress');
   input.unbind('cloudinarydone');
-}
+};
 
 /* Expects a string "role:collector,userId:1234,...", return and object {role:'collector',userId:'1234'}
  */
@@ -236,7 +235,7 @@ var getMeta = function ($input) {
   }
 
   return meta;
-}
+};
 
 var getPreset = function ($input) {
   var preset = $input.data("preset");

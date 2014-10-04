@@ -22,7 +22,7 @@ You can now upload a stream of data via the c_upload_stream template and view pr
 ## Installation
 
 ``` sh
-$ mrt add cloudinary
+$ meteor add cramhead:cloudinary
 ```
 
 ## How to upload

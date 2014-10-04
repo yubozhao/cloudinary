@@ -1,20 +1,21 @@
 Package.describe({
-  name: "cloudinary",
+  name: "cramhead:cloudinary",
   summary: "Upload files to Cloudinary. Extend lepozepo's package with client side upload",
-  version: "0.9.0",
+  version: "0.9.1",
   git: "https://github.com/cramhead/cloudinary"
 });
 
 Npm.depends({
-  cloudinary: "1.0.8",
-  "stream-buffers": "0.2.5"
+  cloudinary: "1.0.11",
+  "stream-buffers": "1.0.0"
 });
 
-Package.onUse(function (api) {
-  //api.versionsFrom('METEOR@0.9.2');
-  api.use('mongo', ['client', 'server']);
-  //Need service-configuration to use Meteor.method
+
+var fileExports = function (api) {
+  api.versionsFrom('METEOR@0.9.2');
   
+  api.use('mongo', ['client', 'server']);
+  //Need service-configuration to use Meteor.method  
   api.use(["underscore@1.0.0", "ejson@1.0.0", "service-configuration@1.0.0", "lepozepo:streams@0.2.0"], ["client", "server"]);
 
   api.use(["matb33:collection-hooks@0.7.3"], ["client", "server"], {weak: true});
@@ -41,5 +42,15 @@ Package.onUse(function (api) {
   api.export("_cloudinary", "client");
   api.export("C", "client");
   api.export("uploaded", ["client", "server"]);
+};
+
+Package.onUse(fileExports);
+
+Package.onTest(function(api) {
+  api.use('tinytest');
+  fileExports(api);
+
+  api.use('cramhead:cloudinary');
+  api.addFiles('tests/test.js');
 });
 

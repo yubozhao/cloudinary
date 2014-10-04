@@ -12,9 +12,7 @@ var initCollectionHooks = function () {
   //once the seed process is complete or no seeding takes place add the listener
   //
   hookHandles.push(
-    _cloudinary.after.update(function (userId, doc, fieldNames,
-      modifier,
-      options) {
+    _cloudinary.after.update(function (userId, doc, fieldNames, modifier, options) {
 
       if (fieldNames.indexOf("publicId") > -1) {
         console.log("Adding uploaded " + doc.publicId);
@@ -35,7 +33,7 @@ var initCollectionHooks = function () {
           if (err) {
             throw new Meteor.Error(419,
               "Error adding cloudinary image to uploaded. " + err
-              .message);
+                .message);
           }
         });
 
@@ -47,10 +45,9 @@ var initCollectionHooks = function () {
 var disableCollectionHooks = function () {
 
   for (var i = hookHandles.length - 1; i >= 0; i--) {
-
     var hookHandle = hookHandles.pop();
     hookHandle.remove();
-  };
+  }
 };
 
 // start with hooks enabled

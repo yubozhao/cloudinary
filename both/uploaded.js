@@ -42,8 +42,8 @@ uploaded.add = function (imageObj, callback) {
     check(imageObj.publicId, String);
 
     if (this.find({
-      publicId: imageObj.publicId
-    }).count() > 0) {
+        publicId: imageObj.publicId
+      }).count() > 0) {
       return; // return if the image already exists
     }
   }
@@ -74,13 +74,6 @@ uploaded.markDeleted = function (id, callback) {
     callback);
 };
 
-
-uploaded.roles = {
-  collectible: 1,
-  discussion: 2,
-  profile: 3
-};
-
 uploaded.status = {
   deleted: 0,
   active: 1,
@@ -91,7 +84,7 @@ uploaded.status = {
 if (Meteor.isServer) {
 
   Meteor.methods({
-    markUploadDeletedByPublicId : function(publicId, callback){
+    markUploadDeletedByPublicId: function (publicId, callback) {
       if (_.isString(publicId)) {
         var upload = uploaded.findOne({
           publicId: publicId
@@ -107,7 +100,7 @@ if (Meteor.isServer) {
 
       }
     },
-    markUploadLinkedByPublicId : function(publicId, callback){
+    markUploadLinkedByPublicId: function (publicId, callback) {
       if (_.isString(publicId)) {
         var upload = uploaded.findOne({
           publicId: publicId
@@ -122,10 +115,29 @@ if (Meteor.isServer) {
         }
 
       }
+    },
+    deleteAllMarkedFiles: function () {
+      var uId = Meteor.userId();
+      if (uId) {
+        var marked = uploaded.find({ownerId: uId, status: uploaded.status.deleted}, {fields: {publicId: 1}});
+        marked.forEach(function (markedFile) {
+          Meteor.call("cloudinary_delete", doc.publicId, function (err) {
+            // if there was an error log it.
+            if (err) {
+
+              throw new Meteor.Error(419,
+                "Error deleting cloudinary image. " +
+                err.reason);
+            }
+            // otherwise remove the image
+            uploaded.remove(doc._id);
+
+          });
+        });
+      }
+
     }
   });
-
-
 
   var hookHandles = [];
 
@@ -134,29 +146,27 @@ if (Meteor.isServer) {
 
     hookHandles.push(
       uploaded.after.update(function (userId, doc, fieldNames,
-        modifier, options) {
+                                      modifier, options) {
 
         // check if the pending image was marked as deleted. If so delete from cloudinary
-        if (fieldNames.indexOf('status') > -1 && doc.status ===
-          uploaded.status.deleted) {
+        if (fieldNames.indexOf('status') > -1 && doc.status === uploaded.status.deleted) {
 
           console.log('calling cloudinary_delete with ' + doc.publicId);
-          Meteor.call("cloudinary_delete", doc.publicId, function (err,
-            result) {
+          Meteor.call("cloudinary_delete", doc.publicId, function (err) {
             // if there was an error log it.
             if (err) {
 
               throw new Meteor.Error(419,
                 "Error deleting cloudinary image. " +
                 err.reason);
-              return;
             }
             // otherwise remove the image
             uploaded.remove(doc._id);
 
           });
         }
-      }));
+      })
+    );
 
   };
 

@@ -72,7 +72,7 @@ Meteor.methods({
 				total_uploaded: total_uploaded,
 				percent_uploaded: percent_uploaded,
 				uploading:true
-			}
+			};
 
 			_cloudinary_stream.emit("upload",upload_stats,options);
 
@@ -85,7 +85,7 @@ Meteor.methods({
 			var callback_options = {
 				context:options.context,
 				upload_data:future.wait()
-			}
+			};
 
 			if(_.has(options,"callback")){
 				Meteor.call(options.callback,callback_options);
