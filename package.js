@@ -1,7 +1,7 @@
 Package.describe({
   name: "cramhead:cloudinary",
-  summary: "Upload files to Cloudinary. Extend lepozepo's package with client side upload",
-  version: "0.9.1",
+  summary: "Upload files to Cloudinary. This package is still on under active development and the API is expected to change. Extend lepozepo's package with client side upload",
+  version: "0.9.2",
   git: "https://github.com/cramhead/cloudinary"
 });
 

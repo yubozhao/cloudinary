@@ -107,6 +107,21 @@ _cloudinary.after.update(function(user,file){
 ```
 
 
+## Client-side upload
+
+The client-side upload currently uses a preset, configured on Cloudinary such that you can upload with out a secured connection. Parameters are passed to Cloudinary via data attributes.
+Handlers are automatically attached to the input field of ```type='file'```
+
+```
+{{#c_clientside_upload}}
+  <input name="file" type="file" multiple="true" data-meta='role:myRole' data-preset='thePresetName'>
+{{/c_clientside_upload}}
+```
+
+On change a copy of the file copied into a client side only collection ```_cloudinary```. The collection has a base64 encoded copy of the file that along with other information such as the progress of upload and a status indicating if the upload is in process or is complete. The file is broken into chunks and sent to Cloudinary and progress is updated with a successfully uploaded chunk.
+
+When the entire file is uploaded the file meta data including the publicId of the file is copied to the uploaded collection, which exists on the server and client. At that point you can safely copy the publicId to another collection and call the uploaded.markLinked() function with the _id uploaded item or call the server with ```Meteor.call('markUploadDeletedByPublicId', publicId, function(err,result){}```
+
 
 Here are all the transformations you can apply:
 [http://cloudinary.com/documentation/image_transformations#reference](http://cloudinary.com/documentation/image_transformations#reference)

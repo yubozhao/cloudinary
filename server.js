@@ -96,13 +96,19 @@ Meteor.methods({
 			throw new Meteor.Error("Cloudinary Error",future.wait().error);
 		}
 	},
-	cloudinary_delete:function(public_id){
+	cloudinary_delete:function(public_ids){
 		//This isn't very safe, lol
 		this.unblock();
 
 		var future = new Future();
+		var ids;
+		if(_.isArray(public_ids)){
+			ids = public_ids
+		}else{
+			ids = [public_ids]
+		}
 
-		Cloudinary.api.delete_resources([public_id],function(result){
+		Cloudinary.api.delete_resources(ids,function(result){
 			future.return(result);
 		});
 
