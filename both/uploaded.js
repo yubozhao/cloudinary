@@ -86,7 +86,7 @@ if (Meteor.isClient) {
       publicId: doc.publicId
     }, function(err, result) {
       if (err) {
-        App.logger.error("Error removing temporary entry from _cloudinary. + " + err.message);
+        app.logger.error("Error removing temporary entry from _cloudinary. + " + err.message);
       }
     });
   })

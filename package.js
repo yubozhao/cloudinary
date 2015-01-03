@@ -1,7 +1,7 @@
 Package.describe({
   name: "cramhead:cloudinary",
   summary: "Upload files to Cloudinary. Extend lepozepo's package with client side upload. Active development",
-  version: "0.9.2",
+  version: "0.9.3",
   git: "https://github.com/cramhead/cloudinary"
 });
 
@@ -18,7 +18,7 @@ var fileExports = function (api) {
   //Need service-configuration to use Meteor.method  
   api.use(["underscore@1.0.0", "ejson@1.0.0", "service-configuration@1.0.0", "lepozepo:streams@0.2.0"], ["client", "server"]);
 
-  api.use(["matb33:collection-hooks@0.7.3"], ["client", "server"], {weak: true});
+  api.use(["matb33:collection-hooks@0.7.7"], ["client", "server"], {weak: true});
 
   api.use(["ui@1.0.0", "templating@1.0.0", "spacebars@1.0.0"], "client");
 
