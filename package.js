@@ -1,8 +1,8 @@
 Package.describe({
-  name: "cramhead:cloudinary",
-  summary: "Upload files to Cloudinary. Extend lepozepo's package with client side upload. Active development",
-  version: "0.9.3",
-  git: "https://github.com/cramhead/cloudinary"
+	name:"eugenisan:cloudinary",
+	summary: "Upload files to Cloudinary",
+	version:"3.0.0",
+	git:"https://github.com/Lepozepo/cloudinary"
 });
 
 Npm.depends({
@@ -53,4 +53,3 @@ Package.onTest(function(api) {
   api.use('cramhead:cloudinary');
   api.addFiles('tests/test.js');
 });
-
