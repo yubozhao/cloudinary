@@ -6,6 +6,10 @@ Template.c_upload.events({
       options.callback = helper.data.callback;
     }
 
+		if(helper.data && _.has(helper.data,"public_id")){
+			options.public_id = helper.data.public_id;
+		}
+
     var files = e.currentTarget.files;
 
     _.each(files, function (file) {
@@ -34,6 +38,10 @@ Template.c_upload_stream.events({
     if (helper.data && _.has(helper.data, "callback")) {
       options.callback = helper.data.callback;
     }
+
+		if(helper.data && _.has(helper.data,"public_id")){
+			options.public_id = helper.data.public_id;
+		}
 
     var files = e.currentTarget.files;
 
@@ -246,30 +254,22 @@ var getPreset = function ($input) {
 
 var getCloudinaryOptions = function ($input) {
   var options = {};
-
   var tags = $input.data("tags");
-
   if (tags) {
     options.tags = tags;
   }
 
   var context = {}; // $input.data("context")|| {};
-  // if debugging add an extra tag
   if ($.cloudinary.config().debug) {
     context = {alt: 'debug'};
   }
   if (context) {
     options.context = context;
   }
-
+  
   var publicId = $input.data('publicId');
   if (publicId) {
     options.public_id = publicId;
   }
-
-  // var folder = $input.data('folder');
-  // if(folder){
-  // 	options.folder = folder;
-  // }
   return options;
 };
