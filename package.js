@@ -1,8 +1,8 @@
 Package.describe({
-	name:"lepozepo:cloudinary",
+	name:"bozhao:cloudinary",
 	summary: "Upload files to Cloudinary",
 	version:"3.0.1",
-	git:"https://github.com/Lepozepo/cloudinary"
+	git:"https://github.com/yubozhao/cloudinary"
 });
 
 Npm.depends({
@@ -45,11 +45,3 @@ var fileExports = function (api) {
 };
 
 Package.onUse(fileExports);
-
-Package.onTest(function(api) {
-  api.use('tinytest');
-  fileExports(api);
-
-  api.use('cramhead:cloudinary');
-  api.addFiles('tests/test.js');
-});
