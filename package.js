@@ -1,7 +1,7 @@
 Package.describe({
 	name:"bozhao:cloudinary",
 	summary: "Upload files to Cloudinary",
-	version:"3.0.1",
+	version:"3.0.3",
 	git:"https://github.com/yubozhao/cloudinary"
 });
 
@@ -27,6 +27,9 @@ var fileExports = function (api) {
   api.addFiles("lib/jquery.ui.widget.js", "client");
   api.addFiles("lib/jquery.fileupload.js", "client");
   api.addFiles("lib/jquery.cloudinary.js", "client");
+  api.addFiles("lib/jquery.fileupload-image.js", "client");
+  api.addFiles("lib/jquery.fileupload-process.js", "client");
+  api.addFiles("lib/jquery.fileupload-validate.js", "client");
 
   api.addFiles("client/blocks.html", "client");
   api.addFiles("client/helpers.js", "client");
