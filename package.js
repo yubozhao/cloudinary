@@ -1,12 +1,12 @@
 Package.describe({
 	name:"bozhao:cloudinary",
 	summary: "Upload files to Cloudinary",
-	version:"3.0.3",
+	version:"3.0.5",
 	git:"https://github.com/yubozhao/cloudinary"
 });
 
 Npm.depends({
-  cloudinary: "1.0.11",
+  cloudinary: "1.2.1",
   "stream-buffers": "1.0.0"
 });
 
@@ -23,28 +23,26 @@ var fileExports = function (api) {
   api.use(["ui@1.0.0", "templating@1.0.0", "spacebars@1.0.0"], "client");
 
   //Image manipulation
-  api.addFiles("lib/jquery.iframe-transport.js", "client");
-  api.addFiles("lib/jquery.ui.widget.js", "client");
-  api.addFiles("lib/jquery.fileupload.js", "client");
   api.addFiles("lib/jquery.cloudinary.js", "client");
   api.addFiles("lib/jquery.fileupload-image.js", "client");
   api.addFiles("lib/jquery.fileupload-process.js", "client");
   api.addFiles("lib/jquery.fileupload-validate.js", "client");
+  api.addFiles("lib/jquery.ui.widget.js", "client");
+  api.addFiles("lib/jquery.fileupload.js", "client");
+  api.addFiles("lib/jquery.iframe-transport.js", "client");
 
-  api.addFiles("client/blocks.html", "client");
-  api.addFiles("client/helpers.js", "client");
-  api.addFiles("client/controllers.js", "client");
-  api.addFiles("client/collections.js", "client");
-  api.addFiles("client/functions.js", "client");
+  //api.addFiles("client/blocks.html", "client");
+  //api.addFiles("client/helpers.js", "client");
+  //api.addFiles("client/controllers.js", "client");
+  //api.addFiles("client/collections.js", "client");
+  //api.addFiles("client/functions.js", "client");
   api.addFiles("server.js", "server");
 
-  api.addFiles("both/uploaded.js", ["client", "server"]);
+  //api.addFiles("both/uploaded.js", ["client", "server"]);
 
   //Allow user access to Cloudinary server-side
   api.export("Cloudinary", 'server');
-  api.export("_cloudinary", "client");
-  api.export("C", "client");
-  api.export("uploaded", ["client", "server"]);
+  //api.export("uploaded", ["client", "server"]);
 };
 
 Package.onUse(fileExports);
