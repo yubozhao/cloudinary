@@ -1,1 +1,0 @@
-Cloudinary = Npm.require "cloudinary"

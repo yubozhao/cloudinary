@@ -1,34 +1,27 @@
 Package.describe({
-	name:"bozhao:cloudinary",
-	summary: "Upload files to Cloudinary",
-	version:"4.0.0",
-	git:"https://github.com/yubozhao/cloudinary"
+  name:"bozhao:cloudinary",
+  summary: "Upload files to Cloudinary",
+  version:"4.0.5",
+  git:"https://github.com/yubozhao/cloudinary"
 });
 
 Npm.depends({
-	cloudinary: "1.2.1"
+  cloudinary: "1.2.4"
 });
 
 Package.on_use(function (api){
-	api.versionsFrom('METEOR@1.0');
+  api.versionsFrom('METEOR@1.0');
 
-	// Core Packages
-	api.use(["underscore","coffeescript","mongo"], ["client", "server"]);
-	api.use(["templating"], "client");
+  // Core Packages
+  api.use(["underscore"], ["client", "server"]);
+  api.use(["templating"], "client");
 
-	// External Packages
-	api.use(["matb33:collection-hooks@0.7.3"], ["client", "server"],{weak:true});
+  // Cloudinary Client Side
+  api.add_files("lib/jquery.cloudinary.js","client");
 
-	// Cloudinary Client Side
-	api.add_files("lib/jquery.cloudinary.js","client");
+  // Core Files
+  api.add_files("server/signature.js", "server");
+  api.add_files("client/cloudinary.js", "client");
 
-	// Core Files
-	api.add_files("server/configuration.coffee", "server");
-	api.add_files("server/signature.coffee", "server");
-
-	api.add_files("client/functions.coffee", "client");
-
-	api.export && api.export("Cloudinary",["server","client"]);
-
+  api.export && api.export("Cloudinary",["server","client"]);
 });
-
